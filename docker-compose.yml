@@ -1,0 +1,121 @@
+services:
+  client1:
+    build: 
+      context: ./client
+      dockerfile: Dockerfile
+    volumes:
+      - ./client:/usr/share/nginx/html
+    environment:
+      - FCM_API_KEY=${FCM_API_KEY}
+      - FCM_PROJECT_ID=${FCM_PROJECT_ID}
+      - FCM_AUTH_DOMAIN=${FCM_AUTH_DOMAIN}
+      - FCM_STORAGE_BUCKET=${FCM_STORAGE_BUCKET}
+      - FCM_SENDER_ID=${FCM_SENDER_ID}
+      - FCM_APP_ID=${FCM_APP_ID}
+      - FCM_VAPID_KEY=${FCM_VAPID_KEY}
+      - BACKEND_URL=http://localhost:5001
+    ports:
+      - "3011:3000"
+    networks:
+      - app-network
+
+  client2:
+    build: 
+      context: ./client
+      dockerfile: Dockerfile
+    volumes:
+      - ./client:/usr/share/nginx/html
+    environment:
+      - FCM_API_KEY=${FCM_API_KEY}
+      - FCM_PROJECT_ID=${FCM_PROJECT_ID}
+      - FCM_AUTH_DOMAIN=${FCM_AUTH_DOMAIN}
+      - FCM_STORAGE_BUCKET=${FCM_STORAGE_BUCKET}
+      - FCM_SENDER_ID=${FCM_SENDER_ID}
+      - FCM_APP_ID=${FCM_APP_ID}
+      - FCM_VAPID_KEY=${FCM_VAPID_KEY}
+      - BACKEND_URL=http://localhost:5001
+
+    ports:
+      - "3012:3000"
+    networks:
+      - app-network
+
+  client3:
+      build: 
+        context: ./client
+        dockerfile: Dockerfile
+      volumes:
+        - ./client:/usr/share/nginx/html
+      environment:
+        - FCM_API_KEY=${FCM_API_KEY}
+        - FCM_PROJECT_ID=${FCM_PROJECT_ID}
+        - FCM_AUTH_DOMAIN=${FCM_AUTH_DOMAIN}
+        - FCM_STORAGE_BUCKET=${FCM_STORAGE_BUCKET}
+        - FCM_SENDER_ID=${FCM_SENDER_ID}
+        - FCM_APP_ID=${FCM_APP_ID}
+        - FCM_VAPID_KEY=${FCM_VAPID_KEY}
+        - BACKEND_URL=http://localhost:3001
+
+      ports:
+        - "3013:3000"
+      networks:
+        - app-network
+  client4:
+      build: 
+        context: ./client
+        dockerfile: Dockerfile
+      volumes:
+        - ./client:/usr/share/nginx/html
+      environment:
+        - FCM_API_KEY=${FCM_API_KEY}
+        - FCM_PROJECT_ID=${FCM_PROJECT_ID}
+        - FCM_AUTH_DOMAIN=${FCM_AUTH_DOMAIN}
+        - FCM_STORAGE_BUCKET=${FCM_STORAGE_BUCKET}
+        - FCM_SENDER_ID=${FCM_SENDER_ID}
+        - FCM_APP_ID=${FCM_APP_ID}
+        - FCM_VAPID_KEY=${FCM_VAPID_KEY}
+        - BACKEND_URL=http://localhost:3001
+
+      ports:
+        - "3014:3000"
+      networks:
+        - app-network
+
+
+  python-fcm-server:
+      build: 
+        context: ./server-python
+        dockerfile: Dockerfile
+      ports:
+        - "5001:5001"
+      environment:
+        - HOST=0.0.0.0
+        - PORT=5001
+        - DEBUG=false
+        - MAX_TOKENS=10000
+        - CORS_ORIGINS=http://localhost:3011,http://localhost:3012
+      volumes:
+        - ./data/serviceAccountKey.json:/app/serviceAccountKey.json:ro
+      restart: unless-stopped
+      networks:
+        - app-network
+
+  node-fcm-server:
+    build: 
+      context: ./server-node
+      dockerfile: Dockerfile
+    environment:
+      - API_BASE_URL=http://localhost:3001
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./data/serviceAccountKey_nodejs.json:/app/serviceAccountKey.json:ro
+    restart: unless-stopped
+    networks:
+      - app-network
+    
+
+networks:
+  app-network:
+    driver: bridge
